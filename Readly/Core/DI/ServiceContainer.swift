@@ -1,8 +1,6 @@
 import SwiftUI
 import SwiftData
 
-/// Dependency injection container holding all service references.
-/// Initialized at app startup and passed through the environment.
 @MainActor
 @Observable
 final class ServiceContainer {
@@ -15,7 +13,7 @@ final class ServiceContainer {
     }
 }
 
-// MARK: - Environment Key
+// MARK: - Environment
 
 private struct ServiceContainerKey: EnvironmentKey {
     static let defaultValue: ServiceContainer? = nil

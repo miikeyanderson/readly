@@ -1,6 +1,5 @@
 import SwiftUI
 
-/// Coordinator managing the Daily Review flow presentation.
 @MainActor
 @Observable
 final class DailyReviewCoordinator: Coordinator {
@@ -9,37 +8,26 @@ final class DailyReviewCoordinator: Coordinator {
     private let serviceContainer: ServiceContainer
     private let onDismiss: () -> Void
 
-    init(
-        serviceContainer: ServiceContainer,
-        onDismiss: @escaping () -> Void
-    ) {
+    init(serviceContainer: ServiceContainer, onDismiss: @escaping () -> Void) {
         self.serviceContainer = serviceContainer
         self.onDismiss = onDismiss
     }
 
     func start() -> some View {
-        DailyReviewView(viewModel: makeDailyReviewViewModel())
+        DailyReviewView(viewModel: makeViewModel())
             .environment(\.serviceContainer, serviceContainer)
     }
-
-    // MARK: - Actions
 
     func dismiss() {
         onDismiss()
     }
 
-    // MARK: - View Model Factory
-
-    private func makeDailyReviewViewModel() -> DailyReviewViewModel {
+    private func makeViewModel() -> DailyReviewViewModel {
         DailyReviewViewModel(
             reviewService: serviceContainer.reviewService,
             highlightService: serviceContainer.highlightService,
-            onComplete: { [weak self] in
-                self?.dismiss()
-            },
-            onDismiss: { [weak self] in
-                self?.dismiss()
-            }
+            onComplete: { [weak self] in self?.dismiss() },
+            onDismiss: { [weak self] in self?.dismiss() }
         )
     }
 }

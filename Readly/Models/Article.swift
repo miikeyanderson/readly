@@ -1,26 +1,16 @@
 import Foundation
 import SwiftData
 
-/// Article source entity representing an article from which highlights are taken.
 @Model
 final class Article {
-    /// Unique identifier
     var id: UUID
-
-    /// Article title
     var title: String
-
-    /// Source publication or website
     var source: String
-
-    /// URL to the original article
     var url: String?
 
-    /// All highlights from this article
     @Relationship(deleteRule: .cascade, inverse: \Highlight.article)
     var highlights: [Highlight]
 
-    /// When this article was added
     var addedAt: Date
 
     init(
@@ -38,11 +28,6 @@ final class Article {
         self.highlights = highlights
         self.addedAt = addedAt
     }
-}
 
-extension Article {
-    /// Number of highlights from this article
-    var highlightCount: Int {
-        highlights.count
-    }
+    var highlightCount: Int { highlights.count }
 }

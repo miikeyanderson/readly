@@ -1,7 +1,6 @@
 import Foundation
 import SwiftData
 
-/// Service for CRUD operations on highlights.
 @MainActor
 final class HighlightService {
     private let modelContext: ModelContext
@@ -10,61 +9,44 @@ final class HighlightService {
         self.modelContext = modelContext
     }
 
-    // MARK: - Fetch Operations
+    // MARK: - Fetch
 
-    /// Fetches all highlights, optionally filtered and sorted
-    func fetchAll(
-        sortBy: SortDescriptor<Highlight> = SortDescriptor(\.createdAt, order: .reverse)
-    ) throws -> [Highlight] {
-        let descriptor = FetchDescriptor<Highlight>(sortBy: [sortBy])
-        return try modelContext.fetch(descriptor)
+    func fetchAll(sortBy: SortDescriptor<Highlight> = SortDescriptor(\.createdAt, order: .reverse)) throws -> [Highlight] {
+        try modelContext.fetch(FetchDescriptor<Highlight>(sortBy: [sortBy]))
     }
 
-    /// Fetches highlights for a specific book
     func fetchHighlights(for book: Book) throws -> [Highlight] {
         let bookID = book.id
-        let predicate = #Predicate<Highlight> { highlight in
-            highlight.book?.id == bookID
-        }
-        let descriptor = FetchDescriptor<Highlight>(
+        let predicate = #Predicate<Highlight> { $0.book?.id == bookID }
+        return try modelContext.fetch(FetchDescriptor<Highlight>(
             predicate: predicate,
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
-        )
-        return try modelContext.fetch(descriptor)
+        ))
     }
 
-    /// Fetches highlights for a specific article
     func fetchHighlights(for article: Article) throws -> [Highlight] {
         let articleID = article.id
-        let predicate = #Predicate<Highlight> { highlight in
-            highlight.article?.id == articleID
-        }
-        let descriptor = FetchDescriptor<Highlight>(
+        let predicate = #Predicate<Highlight> { $0.article?.id == articleID }
+        return try modelContext.fetch(FetchDescriptor<Highlight>(
             predicate: predicate,
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
-        )
-        return try modelContext.fetch(descriptor)
+        ))
     }
 
-    /// Fetches favorite highlights
     func fetchFavorites() throws -> [Highlight] {
         let predicate = #Predicate<Highlight> { $0.isFavorite }
-        let descriptor = FetchDescriptor<Highlight>(
+        return try modelContext.fetch(FetchDescriptor<Highlight>(
             predicate: predicate,
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
-        )
-        return try modelContext.fetch(descriptor)
+        ))
     }
 
-    /// Fetches highlights by tag
     func fetchHighlights(withTag tag: String) throws -> [Highlight] {
-        let allHighlights = try fetchAll()
-        return allHighlights.filter { $0.tags.contains(tag) }
+        try fetchAll().filter { $0.tags.contains(tag) }
     }
 
-    // MARK: - Create Operations
+    // MARK: - Create
 
-    /// Creates a new highlight
     @discardableResult
     func create(
         text: String,
@@ -73,58 +55,40 @@ final class HighlightService {
         article: Article? = nil,
         tags: [String] = []
     ) -> Highlight {
-        let highlight = Highlight(
-            text: text,
-            note: note,
-            book: book,
-            article: article,
-            tags: tags
-        )
+        let highlight = Highlight(text: text, note: note, book: book, article: article, tags: tags)
         modelContext.insert(highlight)
         return highlight
     }
 
-    // MARK: - Update Operations
+    // MARK: - Update
 
-    /// Updates a highlight's note
     func updateNote(_ highlight: Highlight, note: String?) {
         highlight.note = note
     }
 
-    /// Toggles the favorite status of a highlight
     func toggleFavorite(_ highlight: Highlight) {
         highlight.isFavorite.toggle()
     }
 
-    /// Adds a tag to a highlight
     func addTag(_ tag: String, to highlight: Highlight) {
-        if !highlight.tags.contains(tag) {
-            highlight.tags.append(tag)
-        }
+        guard !highlight.tags.contains(tag) else { return }
+        highlight.tags.append(tag)
     }
 
-    /// Removes a tag from a highlight
     func removeTag(_ tag: String, from highlight: Highlight) {
         highlight.tags.removeAll { $0 == tag }
     }
 
-    // MARK: - Delete Operations
+    // MARK: - Delete
 
-    /// Deletes a highlight
     func delete(_ highlight: Highlight) {
         modelContext.delete(highlight)
     }
 
-    /// Deletes multiple highlights
     func delete(_ highlights: [Highlight]) {
-        for highlight in highlights {
-            modelContext.delete(highlight)
-        }
+        highlights.forEach { modelContext.delete($0) }
     }
 
-    // MARK: - Save
-
-    /// Saves any pending changes
     func save() throws {
         try modelContext.save()
     }

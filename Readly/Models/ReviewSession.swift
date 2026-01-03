@@ -1,28 +1,14 @@
 import Foundation
 import SwiftData
 
-/// Tracks a daily review session for analytics and streak tracking.
 @Model
 final class ReviewSession {
-    /// Unique identifier
     var id: UUID
-
-    /// The date of the review session (normalized to start of day)
     var date: Date
-
-    /// Number of highlights reviewed in this session
     var highlightsReviewed: Int
-
-    /// Number of highlights marked as favorite during this session
     var highlightsFavorited: Int
-
-    /// Number of highlights discarded during this session
     var highlightsDiscarded: Int
-
-    /// When the session was completed (nil if incomplete)
     var completedAt: Date?
-
-    /// Duration of the session in seconds
     var durationSeconds: Int
 
     init(
@@ -42,15 +28,9 @@ final class ReviewSession {
         self.completedAt = completedAt
         self.durationSeconds = durationSeconds
     }
-}
 
-extension ReviewSession {
-    /// Whether this session has been completed
-    var isComplete: Bool {
-        completedAt != nil
-    }
+    var isComplete: Bool { completedAt != nil }
 
-    /// Formatted duration string
     var formattedDuration: String {
         let minutes = durationSeconds / 60
         let seconds = durationSeconds % 60

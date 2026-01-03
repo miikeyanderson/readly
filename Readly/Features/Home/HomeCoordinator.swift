@@ -1,15 +1,12 @@
 import SwiftUI
 
-/// Coordinator for the Home tab, managing navigation to Daily Review and other features.
 @MainActor
 @Observable
 final class HomeCoordinator: Coordinator {
     var childCoordinators: [any Coordinator] = []
+    var showingDailyReview = false
 
     private let serviceContainer: ServiceContainer
-
-    /// Navigation state for presenting Daily Review
-    var showingDailyReview = false
 
     init(serviceContainer: ServiceContainer) {
         self.serviceContainer = serviceContainer
@@ -26,8 +23,6 @@ final class HomeCoordinator: Coordinator {
             }
     }
 
-    // MARK: - Actions
-
     func showDailyReview() {
         showingDailyReview = true
     }
@@ -37,25 +32,17 @@ final class HomeCoordinator: Coordinator {
         removeChild(dailyReviewCoordinator)
     }
 
-    // MARK: - View Model Factory
-
     private func makeHomeViewModel() -> HomeViewModel {
         HomeViewModel(
             reviewService: serviceContainer.reviewService,
-            onStartReview: { [weak self] in
-                self?.showDailyReview()
-            }
+            onStartReview: { [weak self] in self?.showDailyReview() }
         )
     }
-
-    // MARK: - Child Coordinators
 
     private lazy var dailyReviewCoordinator: DailyReviewCoordinator = {
         let coordinator = DailyReviewCoordinator(
             serviceContainer: serviceContainer,
-            onDismiss: { [weak self] in
-                self?.dismissDailyReview()
-            }
+            onDismiss: { [weak self] in self?.dismissDailyReview() }
         )
         addChild(coordinator)
         return coordinator
