@@ -19,7 +19,7 @@ final class HomeCoordinator: Coordinator {
                 get: { self.showingDailyReview },
                 set: { self.showingDailyReview = $0 }
             )) {
-                dailyReviewCoordinator.start()
+                self.dailyReviewCoordinator.start()
             }
     }
 
@@ -39,12 +39,15 @@ final class HomeCoordinator: Coordinator {
         )
     }
 
-    private lazy var dailyReviewCoordinator: DailyReviewCoordinator = {
+    private var _dailyReviewCoordinator: DailyReviewCoordinator?
+    private var dailyReviewCoordinator: DailyReviewCoordinator {
+        if let existing = _dailyReviewCoordinator { return existing }
         let coordinator = DailyReviewCoordinator(
             serviceContainer: serviceContainer,
             onDismiss: { [weak self] in self?.dismissDailyReview() }
         )
         addChild(coordinator)
+        _dailyReviewCoordinator = coordinator
         return coordinator
-    }()
+    }
 }

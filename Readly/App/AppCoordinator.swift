@@ -50,7 +50,7 @@ final class AppCoordinator: Coordinator {
             set: { self.selectedTab = $0 }
         )) {
             ForEach(Tab.allCases, id: \.self) { tab in
-                tabContent(for: tab)
+                self.tabContent(for: tab)
                     .tabItem {
                         Label(tab.title, systemImage: tab.icon)
                     }
@@ -77,9 +77,12 @@ final class AppCoordinator: Coordinator {
 
     // MARK: - Child Coordinators
 
-    private lazy var homeCoordinator: HomeCoordinator = {
+    private var _homeCoordinator: HomeCoordinator?
+    private var homeCoordinator: HomeCoordinator {
+        if let existing = _homeCoordinator { return existing }
         let coordinator = HomeCoordinator(serviceContainer: serviceContainer)
         addChild(coordinator)
+        _homeCoordinator = coordinator
         return coordinator
-    }()
+    }
 }
